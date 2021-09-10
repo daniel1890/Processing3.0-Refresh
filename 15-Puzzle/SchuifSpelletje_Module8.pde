@@ -2,30 +2,21 @@ int schermHoogte = 500;
 int schermBreedte = 500;
 
 // Creeër een nieuw grid wat geshuffled wordt in de setup functie
-int[][] puzzleCoordinaten = {
-  { 1, 2, 3, 4 }, 
-  { 5, 6, 7, 8 }, 
-  { 9, 10, 11, 12 }, 
-  { 13, 14, 15, 0}, 
-};
+int aantalGridCells = 4;
+int[][] puzzleCoordinaten = new int[aantalGridCells][aantalGridCells];
 
 // Creeër een array met 2 cells wat bijhoudt welke grid rij en column geklikt worden
 int[] clickedColEnRij = new int[2];
 int clickedCol;
 int clickedRij;
 
-// Creeër een variabele waarin bijgehouden wordt of de muis ingeklikt is, dit is nodig zodat maar 1 keer een input gedecteerd wordt; dit voorkomt onnodige bugs
+// Creeër een variabele waarin bijgehouden wordt of de muis ingeklikt is, dit is nodig zodat maar 1 keer een input gedecteerd wordt zolang de muisknop niet losgelaten wordt; dit voorkomt onnodige bugs
 boolean mouseLock = false;
-
 boolean winnendeStaat = false;
 
 void settings() {
-  int schermHoogte = 500;
-  int schermBreedte = 500;
-
   size(schermBreedte, schermHoogte);
 }
-
 
 void setup() {
   background(0);
@@ -34,11 +25,11 @@ void setup() {
 
 void draw() {
   clickedColEnRij = klikPuzzle(puzzleCoordinaten, mouseX, mouseY);
-  lockMouse();
-  klikPuzzle(puzzleCoordinaten, mouseX, mouseY);
-  checkCellenOmGeklikteCell(puzzleCoordinaten, clickedCol, clickedRij);
-  tekenPuzzle(puzzleCoordinaten);
+  puzzleCoordinaten = checkCellenOmGeklikteCell(puzzleCoordinaten, clickedCol, clickedRij);
   
+  lockMouse();
+  tekenPuzzle(puzzleCoordinaten);
+ 
   winnendeStaat = detecteerWinnendeStaat(puzzleCoordinaten);
   if (winnendeStaat) {
     println("Je hebt gewonnen!");  
@@ -104,12 +95,14 @@ int[] klikPuzzle(int[][] puzzleCoordinaten, float muisX, float muisY) {
       }
     }
   }
+  
   return colsRowsIndexes;
 }
 
 // Check de buurman van elke cell dus: boven, rechts, onder en links; wanneer de buurman van de geklikte cell een 0 (dus een leeg getekende cell) is dan wordt de waarde tussen beide cellen geswitched
-void checkCellenOmGeklikteCell(int[][] puzzleCoordinaten, int clickedCol, int clickedRij) {
+int[][] checkCellenOmGeklikteCell(int[][] puzzleCoordinaten, int clickedCol, int clickedRij) {
   int restGetal;
+  
   if (clickedCol > 0) {
     if (puzzleCoordinaten[clickedRij][clickedCol - 1] == 0) {
       restGetal = puzzleCoordinaten[clickedRij][clickedCol];
@@ -117,6 +110,7 @@ void checkCellenOmGeklikteCell(int[][] puzzleCoordinaten, int clickedCol, int cl
       puzzleCoordinaten[clickedRij][clickedCol - 1] = restGetal;
     }
   }
+  
   if (clickedCol < puzzleCoordinaten[0].length - 1) {
     if (puzzleCoordinaten[clickedRij][clickedCol + 1] == 0) {
       restGetal = puzzleCoordinaten[clickedRij][clickedCol];
@@ -124,6 +118,7 @@ void checkCellenOmGeklikteCell(int[][] puzzleCoordinaten, int clickedCol, int cl
       puzzleCoordinaten[clickedRij][clickedCol + 1] = restGetal;
     }
   }
+  
   if (clickedRij > 0) {
     if (puzzleCoordinaten[clickedRij - 1][clickedCol] == 0) {
       restGetal = puzzleCoordinaten[clickedRij][clickedCol];
@@ -131,6 +126,7 @@ void checkCellenOmGeklikteCell(int[][] puzzleCoordinaten, int clickedCol, int cl
       puzzleCoordinaten[clickedRij - 1][clickedCol] = restGetal;
     }
   }
+  
   if (clickedRij < puzzleCoordinaten.length - 1) {
     if (puzzleCoordinaten[clickedRij + 1][clickedCol] == 0) {
       restGetal = puzzleCoordinaten[clickedRij][clickedCol];
@@ -138,6 +134,8 @@ void checkCellenOmGeklikteCell(int[][] puzzleCoordinaten, int clickedCol, int cl
       puzzleCoordinaten[clickedRij + 1][clickedCol] = restGetal;
     }
   }
+  
+  return puzzleCoordinaten;
 }
 
 // Een functie die de puzzlecoördinaten ontvangt en deze shuffled, met de ontvangen array wordt bepaalt hoeveel rijen en columns er zijn, hierna wordt elke cell 1 voor 1 gevult met de shuffled lijst
@@ -162,24 +160,20 @@ int[][] shufflePuzzleCoordinaten(int[][] puzzleCoordinaten) {
       counter++;
     }
   }
-  
-  counter = 0;
 
   return puzzleCoordinaten;
 }
-
 
 // Deze functie shuffled een ontvangen array met getallen uit de array die op een andere plek staan, zie Fisher–Yates shuffle algoritme
 int[] shuffleGetallenLijst( int getallenLijst[], int nGetallen) {         
   for (int i = nGetallen-1; i > 0; i--) {
     int randomIndex = int(random(i+1));
-
     int temp = getallenLijst[i];
+    
     getallenLijst[i] = getallenLijst[randomIndex];
     getallenLijst[randomIndex] = temp;
   }
 
-  println(15 % 15);
   return getallenLijst;
 }
 
@@ -188,6 +182,7 @@ boolean detecteerWinnendeStaat(int[][] puzzleCoordinaten) {
   int counter = 1;
   int counterMax = 16;
   boolean winnendeStaat = true;
+  
   for (int rijTeller = 0; rijTeller < puzzleCoordinaten.length; rijTeller++) {
     for (int colTeller = 0; colTeller < puzzleCoordinaten[rijTeller].length; colTeller++) {
       if (puzzleCoordinaten[rijTeller][colTeller] != counter % counterMax) {
@@ -197,8 +192,6 @@ boolean detecteerWinnendeStaat(int[][] puzzleCoordinaten) {
       counter++;
     }
   }
-  
-  counter = 1;
   
   return winnendeStaat;
 }
