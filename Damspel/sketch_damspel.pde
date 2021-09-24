@@ -20,6 +20,7 @@ int geklikteColOud;
 boolean speler1AanDeBeurt = false;
 boolean steenVastAanMuis = false;
 boolean muisBovenJuisteSpeler;
+boolean isDitEenLegaleZet = false;
 
 // Speler 1 steentjes BLAUW worden getekend wanneer waarde van bord 1 is
 // Speler 2 steentjes ROOD worden getekend wanneer waarde van bord 2 is
@@ -41,29 +42,24 @@ void draw() {
 
 void mousePressed() {
   geklikteRijEnCol = klikBord(bord);
+  muisBovenJuisteSpeler = isMuisBovenJuisteSpeler(bord);
 
   if (steenVastAanMuis) {
     geklikteRij = geklikteRijEnCol[0];
     geklikteCol = geklikteRijEnCol[1];
+    isDitEenLegaleZet = checkLegaleZet(bord, geklikteRij, geklikteCol, geklikteRijOud, geklikteColOud);
   } else if (!steenVastAanMuis) {
     geklikteRijOud = geklikteRijEnCol[0];
     geklikteColOud = geklikteRijEnCol[1];
   }
-  println(geklikteRij, geklikteCol);
+
+  //println(geklikteRij, geklikteCol);
 
   bord = beweegSteen(bord);
-  steenVastAanMuis = !steenVastAanMuis;
-
-
-  // for loop om staat van bord te tekenen in console
-  for (int i = 0; i < bord.length; i++ ) {
-    println();
-    for (int j = 0; j < bord[0].length; j++ ) {
-      print(bord[i][j]);
-    }
+  if (muisBovenJuisteSpeler) {
+    steenVastAanMuis = !steenVastAanMuis;
   }
-
-  println(steenVastAanMuis);
+  //println("ROOD aan de beurt: " + !speler1AanDeBeurt);
 }
 
 void spelLoop() {
